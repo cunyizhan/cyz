@@ -1,1 +1,17 @@
-我是服务器上传文件
+﻿我是服务器上传文件
+
+1 项目拉倒 cyz 目录下
+2 命令行模式  执行  git add .( . 意思为添加所有，如果要添加单个文件 则 . 改为文件名)
+3 git commit 文件名 -m '注释'
+4 git push
+5 git pull
+
+上面的步骤会传到github 仓库
+
+登录服务器  
+
+ cd usr/local/gittest/cyz/  切换到该目录
+
+ git pull 拉取github 仓库代码
+
+
