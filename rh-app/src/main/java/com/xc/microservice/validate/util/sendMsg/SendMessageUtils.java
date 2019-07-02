@@ -20,7 +20,7 @@ public class SendMessageUtils {
 			b = "0"+ a;
 		}else if (b.length()==2) {
 			b = "00"+ a;
-		}else if (b.length()==1) {
+		}else if (b.length()==1) {	
 			b = "000"+ a;
 		}
 		return b;
@@ -35,8 +35,8 @@ public class SendMessageUtils {
 		final String product = "Dysmsapi";//短信API产品名称
 		final String domain = "dysmsapi.aliyuncs.com";//短信API产品域名
 		//替换成你的AK
-		final String accessKeyId = "accessKeyId";//你的accessKeyId,参考本文档步骤2
-		final String accessKeySecret = "accessKeySecret";//你的accessKeySecret，参考本文档步骤2
+		final String accessKeyId = "hy0UAdO3qljUmuFI";//你的accessKeyId,参考本文档步骤2
+		final String accessKeySecret = "bVwDnyTHBDPaz8rol9EOGyS0DKQraP";//你的accessKeySecret，参考本文档步骤2
 		//初始化ascClient,暂时不支持多region
 		IClientProfile profile = DefaultProfile.getProfile("cn-hangzhou", accessKeyId,
 		accessKeySecret);

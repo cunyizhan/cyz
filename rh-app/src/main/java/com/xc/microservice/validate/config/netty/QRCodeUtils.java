@@ -7,6 +7,8 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
 import com.google.zxing.BarcodeFormat;
@@ -20,8 +22,10 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.xc.microservice.validate.service.UserGroupService;
 
 @Component
+@Slf4j
 public class QRCodeUtils {
 	
 	public void createQRCode(String filePath, String content) {
@@ -44,8 +48,9 @@ public class QRCodeUtils {
             BitMatrix bitMatrix=new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, width, height,hints);
             Path file=new File(filePath).toPath();
             MatrixToImageWriter.writeToPath(bitMatrix, format, file);
+            log.info("生成文件成功【"+filePath+"】");
         } catch (Exception e) {
-            e.printStackTrace();
+        	log.error("",e);
         }
 	}
 	
@@ -62,8 +67,11 @@ public class QRCodeUtils {
             Result result=formatReader.decode(binaryBitmap,hints);
             return result.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+        	log.error("",e);
             return null;
         }
+	}
+	public static void main(String[] args) {
+		new QRCodeUtils().createQRCode("d:\\1.png", "11");
 	}
 }

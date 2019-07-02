@@ -2,6 +2,7 @@ package com.xc.microservice.validate.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -26,6 +27,9 @@ public interface MyFriendsMapper {
 	
 	@Select("SELECT b.id as friendUserId,b.username as friendUsername,b.faceImage as friendFaceImage,b.nickname as friendNickname   from (select my_friend_user_id from rh_my_friends where my_user_id =#{userId}) as a LEFT JOIN rh_users as b on a.my_friend_user_id=b.id")
 	public List<MyFriendsVO> serverQueryMyFriendsVO(String userId);
+	
+	@Delete("delete from rh_my_friends where my_user_id = #{myUserId} and my_friend_user_id=#{myFriendUserId} and is_delete='0'")
+	public Integer serverDeleteMyFriend(MyFriends myFriends);
 	
 	
 	

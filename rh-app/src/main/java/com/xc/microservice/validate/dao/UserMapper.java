@@ -38,15 +38,21 @@ public interface UserMapper {
 			+ "UPDATE `rh_users` "
 			+ "<trim prefix='set' suffixOverrides=','>"
 			+ "<if test=\"username!=null and username!=''\">`username`=#{username},</if>"
+			+ "<if test=\"nickname!=null and nickname!=''\">`nickname`=#{nickname},</if>"
 			+ "<if test=\"gender!=null and gender!=''\">`gender`=#{gender},</if> "
 			+ "<if test=\"phone!=null and phone!=''\">`phone`=#{phone},</if>"
 			+ "<if test=\"password!=null and password!=''\">`password`=#{password},</if>"
 			+ "<if test=\"email!=null and email!=''\">`email`=#{email},</if>"
 			+ "<if test=\"citycode!=null and citycode!=''\">`citycode`=#{citycode},</if>"
+			
+			+ "<if test=\"address!=null and address!=''\">`address`=#{address},</if>"
+			+ "<if test=\"addresscode!=null and addresscode!=''\">`addresscode`=#{addresscode},</if>"
+			
 			+ "<if test=\"faceImage!=null and faceImage!=''\">`faceImage`=#{faceImage},</if>"
 			+ "<if test=\"faceImageBig!=null and faceImageBig!=''\">`faceImageBig`=#{faceImageBig},</if>"
 			+ "<if test=\"qrcode!=null and qrcode!=''\">`qrcode`=#{qrcode},</if>"
 			+ "<if test=\"cid!=null and cid!=''\">`cid`=#{cid},</if>"
+			+ "<if test=\"lastDate!=null\">`last_date`=now(),</if>"
 			+ "</trim>"
 			+ "WHERE `id`=#{id}"
 			+ "</script>")

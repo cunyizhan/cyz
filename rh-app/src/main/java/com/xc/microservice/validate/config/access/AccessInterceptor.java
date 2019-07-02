@@ -49,7 +49,35 @@ public class AccessInterceptor  extends HandlerInterceptorAdapter{
 			if(uri.contains("nolimit")){
 				return true;
 			}
-			TUser user = getUser(request, response);
+			if(uri.contains("zyzs")){
+				return true;
+			}
+			if(uri.contains("city")){
+				return true;
+			}
+//			TUser user = getUser(request, response);
+//			JSONObject js=doParams(request);
+//			if(!js.has("phone")||!js.has("cid")){
+//				render(response, CodeMsg.SEACH_PARAMS_ERROR);
+//				return false;
+//			}
+//			String phone = js.getString("phone");
+//			String cid = js.getString("cid");
+			String phone = request.getParameter("phone");
+			String cid = request.getParameter("cid");
+			if(StringUtils.isEmpty(phone)||StringUtils.isEmpty(cid)) {
+				render(response, CodeMsg.SEACH_PARAMS_ERROR);
+				return false;
+			}
+			TUser user = redisService.get(SessionKey.session, phone, TUser.class);
+			if(user == null) {
+				render(response, CodeMsg.NO_LOGIN);
+				return false;
+			}
+			if(!cid.trim().equals(user.getCid().trim())){
+				render(response, CodeMsg.PHONE_OTHER_LOGIN_ERROR);
+				return false;
+			}
 			AccessLimit accessLimit = hm.getMethodAnnotation(AccessLimit.class);
 			UserContext.setUser(user);
 			if(accessLimit == null) {
@@ -102,7 +130,7 @@ public class AccessInterceptor  extends HandlerInterceptorAdapter{
 	 * 处理参数流
 	 * @param request
 	 */
-	private void doParams(HttpServletRequest request){
+	private JSONObject doParams(HttpServletRequest request){
 		 try {
 	            BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
 	            StringBuffer sb=new StringBuffer();
@@ -111,12 +139,14 @@ public class AccessInterceptor  extends HandlerInterceptorAdapter{
 	                sb.append(s);
 	            }
 	            JSONObject jsonObject = JSONObject.fromObject(sb.toString());
-	            Set<String> set=jsonObject.keySet();
-	            for (String k : set) {
-	            	request.setAttribute(k, jsonObject.get(k));
-				}
+//	            Set<String> set=jsonObject.keySet();
+//	            for (String k : set) {
+//	            	request.setAttribute(k, jsonObject.get(k));
+//				}
+	            return jsonObject;
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	        }
+		 return new JSONObject();
 	}
 }

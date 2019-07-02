@@ -2,6 +2,7 @@ package com.xc.microservice.validate.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,7 +54,8 @@ public class CodeController{
 	 * @throws IOException
 	 */
 	@PostMapping(value="/zyzs/getCode")
-	public Result<?> getCode(String phone){
+	public Result<?> getCode(@RequestBody Map<String, String> map){
+		String phone= map.get("phone");
 		CodeMsg msg = codeService.generateCode(phone);
 		return Result.msg(msg);
 	}
@@ -65,26 +67,38 @@ public class CodeController{
 	 * @throws IOException
 	 */
 	@PostMapping(value="/zyzs/compareCode")
-	public Result<?> compareCode( String phone,String code){
-		CodeMsg msg = codeService.compareCode(phone, code);
-		return Result.msg(msg);
+	public Result<?> compareCode(@RequestBody Map<String, String> map){
+		try {
+			 String phone= map.get("phone");
+			 String code= map.get("code");
+			CodeMsg msg = codeService.compareCode(phone, code);
+			return Result.msg(msg);
+		} catch (Exception e) {
+			log.error("",e);
+			return Result.error(CodeMsg.EXPECTION_ERROR);
+		}
 	}
 	
 	@RequestMapping(value="/login/codeLogin", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public Result<?> user_code_login(HttpServletRequest request,HttpServletResponse response,@RequestBody@Valid LoginVo vo) throws UnsupportedEncodingException, IOException{
-		Users user = new Users();
-		log.info("手机号{}",vo.getPhone());
-		log.info("手机标识{}",vo.getCid());
-		log.info("短信验证码{}",vo.getCode());
-		user.setPhone(vo.getPhone());
-		user.setPassword(vo.getPassword());
-		Users res = userService.queryUserForLogin(user);
-		CodeMsg msg = codeService.compareCode(user.getPhone(), user.getPassword());
-		if(CodeMsg.SUCCESS.getCode()==msg.getCode()){
-			redisService.set(SessionKey.session, vo.getPhone(),res);
-			return Result.success(res);
+		try {
+			Users user = new Users();
+			log.info("手机号{}",vo.getPhone());
+			log.info("手机标识{}",vo.getCid());
+			log.info("短信验证码{}",vo.getCode());
+			user.setPhone(vo.getPhone());
+			user.setCid(vo.getCid());
+			Users res = userService.queryUserForCodeLogin(user);
+			CodeMsg msg = codeService.compareCode(user.getPhone(), user.getPassword());
+			if(CodeMsg.SUCCESS.getCode()==msg.getCode()){
+				redisService.set(SessionKey.session, vo.getPhone(),res);
+				return Result.success(res);
+			}
+			return Result.error(CodeMsg.PHONE_OR_CODE_ERROR);
+		} catch (Exception e) {
+			log.error("",e);
+			return Result.error(CodeMsg.EXPECTION_ERROR);
 		}
-		return Result.error(CodeMsg.PHONE_OR_CODE_ERROR);
 	}
 }

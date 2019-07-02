@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -71,8 +72,9 @@ public class GroupController {
 	 * 
 	 * @Description: 查询我所在群组信息
 	 */
-	@GetMapping("/chat/getMyGroup")
-	public Result<?> getMyGroupList(String userId) {
+	@PostMapping("/chat/getMyGroup")
+	public Result<?> getMyGroupList(@RequestBody Map<String,String> map) {
+		String userId=map.get("userId");
 		// 0. userId 判断不能为空
 		if (StringUtils.isBlank(userId)) {
 			return Result.error(CodeMsg.SEACH_NUM_ERROR);
@@ -87,27 +89,29 @@ public class GroupController {
 	
 	
 	//获取未读消息
-	@GetMapping("/group/getNoReadChatMsgList")
+	@PostMapping("/group/getNoReadChatMsgList")
 	public Result<?> getNoReadChatMsgList(@RequestParam("acceptUserId") String acceptUserId) {
 		List<GroupChatContentDto> list = groupChatMsgService.getNoReadChatMsgList(acceptUserId);
 		return Result.success(list);
 	}
 	
 	
-	@GetMapping("/group/memberList")
-	public Result<List<Users>> memberList(@RequestParam("groupId") String groupId) {
+	@PostMapping("/group/memberList")
+	public Result<List<Users>> memberList(@RequestBody Map<String,String> map) {
+		String groupId=map.get("groupId");
 		List<Users> list = groupService.memberList(groupId);
 		return Result.success(list);
 	}
 	
-	@GetMapping("/group/listByUserId")
+	@PostMapping("/group/listByUserId")
 	public Result<List<Groups>> listByUserId(@RequestParam("userId") String userId) {
 		List<Groups> list = groupService.listByUserId(userId);
 		return Result.success(list);
 	}
 	
 	@PostMapping("/group/searchGroups")
-	public Result<List<JSONObject>> searchGroups(String searchInfo) {
+	public Result<List<JSONObject>> searchGroups(@RequestBody Map<String,String> map) {
+		String searchInfo=map.get("searchInfo");
 		List<Groups> list = groupService.serverSearchGroups(searchInfo);
 		List<JSONObject> listResult=new ArrayList<JSONObject>();
 		for (Groups Groups : list) {

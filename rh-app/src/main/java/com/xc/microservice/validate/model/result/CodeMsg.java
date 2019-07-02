@@ -10,15 +10,17 @@ public class CodeMsg {
 	public static CodeMsg NO_LOGIN = new CodeMsg(1001, "未登录");
 	public static CodeMsg GET_WXSESSION_FAIL = new CodeMsg(1002, "未登录");
 	public static CodeMsg PHONE_OR_PASSWORD_ERROR = new CodeMsg(1003, "手机号或密码错误","%s");
-	public static CodeMsg PHONE_OR_CODE_ERROR = new CodeMsg(1003, "手机号短信验证码错误","%s");
+	public static CodeMsg PHONE_OR_CODE_ERROR = new CodeMsg(1010, "手机号短信验证码错误","%s");
 	public static CodeMsg PHONE_EXIT = new CodeMsg(1004, "该手机号已经被注册");
 	public static CodeMsg UPLOAD_FILE_FAIL = new CodeMsg(1005, "上传头像失败","%s");
 	public static CodeMsg PHONE_OTHER_LOGIN_ERROR = new CodeMsg(1006, "用户已在其它设备登录","%s");
+	public static CodeMsg OLD_PASSWORD_ERROR = new CodeMsg(1011, "旧密码错误，修改失败","%s");
 	
 	
 	
 	public static CodeMsg SEACH_NUM_ERROR = new CodeMsg(1007, "参数有误");
 	public static CodeMsg SEACH_RESULT_ERROR = new CodeMsg(1008, "%s");
+	public static CodeMsg SEACH_PARAMS_ERROR = new CodeMsg(1009, "参数有误,请上送手机号码，和手机唯一标识");
 	
 	public static CodeMsg ACCESS_LIMIT_REACHED= new CodeMsg(400004, "访问太频繁！","%s");
 	public static CodeMsg MIN_LIMIT_NUM= new CodeMsg(400005, "每分钟验证次数%s","%s");
@@ -55,6 +57,7 @@ public class CodeMsg {
 	public static CodeMsg MSG_NOT_OVER = new CodeMsg(300006, "一分钟只能发送一次");
 	
 	public static CodeMsg MSG_VALIDATE_FAIL = new CodeMsg(400001, "校验失败");
+	public static CodeMsg EXPECTION_ERROR = new CodeMsg(400002, "操作失败，请联系管理员","%s");
 	
 	
 	private CodeMsg( int code,String msg,String token) {

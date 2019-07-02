@@ -10,12 +10,17 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.xc.microservice.validate.config.netty.QRCodeUtils;
+
 @Service
+@Slf4j
 public class FileUtils {
 	/**
 	 * 根据url拿取file
@@ -107,7 +112,7 @@ public class FileUtils {
 			MultipartFile multipartFile = new MockMultipartFile(file.getName(), inputStream);
 			return multipartFile;
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("",e);
 			return null;
 		}
 	}
@@ -120,8 +125,7 @@ public class FileUtils {
 			MultipartFile multipartFile = new MockMultipartFile(file.getName(), "png", "image/png", inputStream);
 			return multipartFile;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("",e);
 			return null;
 		}
 	}

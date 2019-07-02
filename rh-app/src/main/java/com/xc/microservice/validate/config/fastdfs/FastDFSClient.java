@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.exception.FdfsUnsupportStorePathException;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
+import com.xc.microservice.validate.config.netty.QRCodeUtils;
 
 @Component
+@Slf4j
 public class FastDFSClient {
 
 	@Autowired
@@ -46,6 +50,7 @@ public class FastDFSClient {
 	}
 	
 	public String uploadQRCode(MultipartFile file) throws IOException {
+		log.info(file.getName());
 		StorePath storePath = storageClient.uploadFile(file.getInputStream(), file.getSize(),
 				"png", null);
 		

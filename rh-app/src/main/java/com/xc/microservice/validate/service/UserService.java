@@ -98,7 +98,11 @@ public class UserService {
 		
 		return result != null && result.size()>0 ? true : false;
 	}
-
+	/**
+	 * 密码登录
+	 * @param user
+	 * @return
+	 */
 	public Users queryUserForLogin(Users user) {
 		List<Users> users =  userMapper.serverQueryByPhone(user.getPhone());
 		log.info("查询到用户数量{}",users.size());
@@ -110,13 +114,18 @@ public class UserService {
 			}
 			if(!user.getCid().equals(u.getCid())){
 				u.setCid(user.getCid());
-				userMapper.serverUpdateUser(user);
 			}
+			u.setLastDate(new Date());
+			userMapper.serverUpdateUser(u);
 			return u;
 		}
 		return null;
 	}
-	
+	/**
+	 * 短信登录
+	 * @param user
+	 * @return
+	 */
 	public Users queryUserForCodeLogin(Users user) {
 		List<Users> users =  userMapper.serverQueryByPhone(user.getPhone());
 		log.info("查询到用户数量{}",users.size());
@@ -124,8 +133,9 @@ public class UserService {
 			Users u = users.get(0);
 			if(!user.getCid().equals(u.getCid())){
 				u.setCid(user.getCid());
-				userMapper.serverUpdateUser(user);
 			}
+			u.setLastDate(new Date());
+			userMapper.serverUpdateUser(u);
 			return u;
 		}
 		return null;
@@ -140,17 +150,17 @@ public class UserService {
 		MultipartFile qrCodeFile = FileUtils.fileToMultipart(qrCodePath);
 		
 		String qrCodeUrl = "";
-//		try {
-//			qrCodeUrl = fastDFSClient.uploadQRCode(qrCodeFile);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}finally{
-//			//上传完一定要将图片删除
-//			File file = new File(qrCodePath);
-//			if (file.exists()  && file.isFile()) {
-//				file.delete();
-//			}
-//		}
+		try {
+			qrCodeUrl = fastDFSClient.uploadQRCode(qrCodeFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			//上传完一定要将图片删除
+			File file = new File(qrCodePath);
+			if (file.exists()  && file.isFile()) {
+				file.delete();
+			}
+		}
 		user.setQrcode("/group1/"+qrCodeUrl);
 		user.setId(userId);
 		userMapper.serverInsertUser(user);
@@ -174,7 +184,16 @@ public class UserService {
 		
 		return user;
 	}
-
+	
+	/**
+	 * 获取用户信息
+	 * @param userId
+	 * @return
+	 */
+	public Users getUserInfoById(String userId){
+		return queryUserById(userId);
+	}
+	
 	public Users updateUserInfo(Users user) {
 		userMapper.serverUpdateUser(user);
 		return queryUserById(user.getId());
@@ -286,6 +305,16 @@ public class UserService {
 	public List<MyFriendsVO> queryMyFriends(String userId) {
 		List<MyFriendsVO> myFirends = myFriendsMapper.serverQueryMyFriendsVO(userId);
 		return myFirends;
+	}
+	
+	public void delMyFriends(String userId,String friendId) {
+		MyFriends f=new MyFriends();
+		f.setMyFriendUserId(friendId);
+		f.setMyUserId(userId);
+		myFriendsMapper.serverDeleteMyFriend(f);
+		f.setMyFriendUserId(userId);
+		f.setMyUserId(friendId);
+		myFriendsMapper.serverDeleteMyFriend(f);
 	}
 
 	public String saveMsg(ChatMsg chatMsg) {
