@@ -6,8 +6,11 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +50,6 @@ import com.xc.microservice.validate.model.group.GroupUsers;
 import com.xc.microservice.validate.model.group.Groups;
 import com.xc.microservice.validate.model.vo.FriendRequestVO;
 import com.xc.microservice.validate.model.vo.MyFriendsVO;
-import com.xc.microservice.validate.util.aes.SymmetricEncoder;
 import com.xc.microservice.validate.util.rh.JsonUtils;
 
 
@@ -293,18 +295,51 @@ public class UserService {
 	}
 	
 	private void saveFriends(String sendUserId, String acceptUserId) {
+		Users user =userMapper.serverQueryById(acceptUserId);
 		MyFriends myFriends = new MyFriends();
 		String recordId = sid.nextShort();
 		myFriends.setId(recordId);
 		myFriends.setMyFriendUserId(acceptUserId);
 		myFriends.setMyUserId(sendUserId);
+		myFriends.setRemark(user.getNickname());
 		myFriendsMapper.serverInserMyFriend(myFriends);
 	}
 
+	public void updFriendRemark(Map<String,String> map){
+		MyFriends myFriends = new MyFriends();
+		myFriends.setMyFriendUserId(map.get("myFriendUserId"));
+		myFriends.setMyUserId(map.get("myUserId"));
+		myFriends.setRemark(map.get("remark"));
+		myFriendsMapper.serverUpdateFriend(myFriends);
+	}
 	
 	public List<MyFriendsVO> queryMyFriends(String userId) {
 		List<MyFriendsVO> myFirends = myFriendsMapper.serverQueryMyFriendsVO(userId);
 		return myFirends;
+	}
+	
+	public List<Map<String,String>> queryPhoneFriends(Map<String,String> map) {
+		String phones=map.get("phones");
+		List<Users> usersList=userMapper.serverQueryPhonesFriends(phones.split(","));
+		List<MyFriendsVO> myFirends = myFriendsMapper.serverQueryMyFriendsVO(map.get("userId"));
+		List<Map<String,String>> list=new ArrayList<Map<String,String>>();
+		for (Users users : usersList) {
+			Map<String,String> m=new HashMap<String, String>();
+			m.put("phone", users.getPhone());
+			m.put("username", users.getUsername());
+			m.put("faceImage", users.getFaceImage());
+			m.put("userId", users.getId());
+			m.put("nickname", users.getNickname());
+			for (MyFriendsVO myFriendsVO : myFirends) {
+				if(!myFriendsVO.getFriendUserId().equals(users.getId())){
+					continue;
+				}
+				m.put("isFriend", "0");
+				m.put("remark", myFriendsVO.getRemark());
+			}
+			list.add(m);
+		}
+		return list;
 	}
 	
 	public void delMyFriends(String userId,String friendId) {

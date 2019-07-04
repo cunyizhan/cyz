@@ -53,8 +53,9 @@ public class FastDFSClient {
 		log.info(file.getName());
 		StorePath storePath = storageClient.uploadFile(file.getInputStream(), file.getSize(),
 				"png", null);
-		
-		return storePath.getPath();
+		String path=storePath.getPath();
+		log.info(file.getName());
+		return path;
 	}
 	
 	public String uploadFace(MultipartFile file) throws IOException {

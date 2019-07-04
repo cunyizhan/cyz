@@ -1,14 +1,9 @@
 package com.xc.microservice.validate.service;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
-import io.netty.channel.Channel;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,43 +13,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mongodb.WriteResult;
 import com.xc.microservice.validate.config.fastdfs.FastDFSClient;
 import com.xc.microservice.validate.config.fastdfs.FileUtils;
-import com.xc.microservice.validate.config.netty.ChatMsg;
-import com.xc.microservice.validate.config.netty.DataContent;
 import com.xc.microservice.validate.config.netty.QRCodeUtils;
-import com.xc.microservice.validate.config.netty.UserChannelRel;
-import com.xc.microservice.validate.controller.UserCenterController;
-import com.xc.microservice.validate.dao.ChatMsgRepository;
 import com.xc.microservice.validate.dao.GroupsMapper;
-import com.xc.microservice.validate.dao.MyFriendsMapper;
-import com.xc.microservice.validate.dao.MyFriendsRequestMapper;
 import com.xc.microservice.validate.dao.UserMapper;
-import com.xc.microservice.validate.dao.UserRepository;
-import com.xc.microservice.validate.model.chat.FriendsRequest;
-import com.xc.microservice.validate.model.chat.MyFriends;
 import com.xc.microservice.validate.model.chat.Users;
 import com.xc.microservice.validate.model.entity.TChatMsg;
-import com.xc.microservice.validate.model.enums.MsgActionEnum;
 import com.xc.microservice.validate.model.enums.MsgSignFlagEnum;
-import com.xc.microservice.validate.model.enums.MsgTypeEnum;
-import com.xc.microservice.validate.model.enums.SearchFriendsStatusEnum;
 import com.xc.microservice.validate.model.group.GroupRequest;
 import com.xc.microservice.validate.model.group.GroupUsers;
 import com.xc.microservice.validate.model.group.Groups;
-import com.xc.microservice.validate.model.group.GroupsDto;
-import com.xc.microservice.validate.model.vo.FriendRequestVO;
-import com.xc.microservice.validate.model.vo.GroupsVO;
-import com.xc.microservice.validate.model.vo.MyFriendsVO;
-import com.xc.microservice.validate.util.aes.SymmetricEncoder;
-import com.xc.microservice.validate.util.rh.JsonUtils;
-
-import org.apache.commons.lang3.StringUtils;
 
 @Service
 @Slf4j
@@ -108,13 +80,13 @@ public class GroupService {
 	 * 创建群聊
 	 * @param param
 	 */
-	public void create(GroupsVO vo) {
+	public Groups create(Map<String,String> map) {
 		Groups groups = new Groups();
-		String groupId = vo.getAddressCode().hashCode()+"";
+		String groupId = map.get("address").hashCode()+"";
 		groups.setId(groupId);
-		groups.setGroupDescription(vo.getGroupDescription());
-		groups.setGroupFaceimageBig(vo.getGroupFaceimageBig());
-		groups.setGroupName(vo.getGroupName());
+		groups.setGroupDescription( map.get("groupDescription"));
+		groups.setGroupFaceimageBig( map.get("groupFaceimageBig"));
+		groups.setGroupName( map.get("groupName"));
 		groups.setGroupNumber(groupId);
 		groups.setIsDelete("0");
 		// 为每个用户生成一个唯一的二维码
@@ -126,20 +98,35 @@ public class GroupService {
 		String qrCodeUrl = "";
 		try {
 			qrCodeUrl = fastDFSClient.uploadQRCode(qrCodeFile);
-		} catch (IOException e) {
-				e.printStackTrace();
+		} catch (Exception e) {
+			log.error("",e);
 		}finally{
+			try {
 				//上传完一定要将图片删除
 				File file = new File(qrCodePath);
 				if (file.exists()  && file.isFile()) {
 					file.delete();
 				}
+			} catch (Exception e2) {
+				log.error("",e2);
+			}
 		}
 		groups.setQrcode("/group1/"+qrCodeUrl);	
 		groupsMapper.serverInsertGroups(groups);
+		return groupsMapper.serverSearchGroupsById(groupId);
 	}
 	
 
+	/**
+	 * 修改群信息
+	 * @param userGroup
+	 * @return
+	 */
+	public Groups updateGroupInfo(Groups group){
+		groupsMapper.serverUpdateGroupInfo(group);
+		return groupsMapper.serverSearchGroupsById(group.getId());
+	}
+	
 	/**
 	 * 获取群成员信息
 	 * 检查参数

@@ -1,6 +1,7 @@
 package com.xc.microservice.validate.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -61,4 +62,12 @@ public interface UserMapper {
 	@Select("select b.* from (select my_friend_user_id from rh_my_friends where my_user_id=#{id} ) as a "
 			+ "LEFT JOIN rh_users as b ON a.my_friend_user_id=b.id WHERE b.phone LIKE #{searchInfo} OR b.nickname LIKE #{searchInfo}")
 	public List<Users> serverSearchMyFriend(@Param("id") String id,@Param("searchInfo")String searchInfo);
+	
+    @Select("<script>"
+            + "SELECT * from rh_users  where phone in "
+            + "<foreach item='item' collection='phones' open='(' separator=',' close=')'>"
+            + "#{item}"
+            + "</foreach>"
+            + "</script>")
+	public List<Users> serverQueryPhonesFriends(@Param("phones")String[] phones);
 }

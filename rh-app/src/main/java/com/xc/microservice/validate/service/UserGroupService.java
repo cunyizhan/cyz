@@ -85,7 +85,7 @@ public class UserGroupService {
 	 * 创建群聊
 	 * @param param
 	 */
-	public void create(Map<String,String> map) {
+	public UserGroup create(Map<String,String> map) {
 		UserGroup groups = new UserGroup();
 		String groupId = sid.nextShort();
 		String userId=map.get("userId");
@@ -120,6 +120,7 @@ public class UserGroupService {
 		groups.setQrcode("/group1/"+qrCodeUrl);	
 		userGroupsMapper.serverInsertGroups(groups);
 		saveUserGroupUsers(userId, friendIds, groupId);
+		return userGroupsMapper.serverQueryMyGroupsById(groupId);
 	}
 	
 	/**

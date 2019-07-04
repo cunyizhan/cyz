@@ -15,6 +15,8 @@ public class MyFriends {
     private String myFriendUserId;
     
     private String isDelete;
+    
+    private String remark;
 
     /**
      * @return id
@@ -72,6 +74,14 @@ public class MyFriends {
 
 	public void setIsDelete(String isDelete) {
 		this.isDelete = isDelete;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
     
     

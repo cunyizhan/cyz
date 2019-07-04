@@ -62,8 +62,8 @@ public class UserGroupController {
 	@ResponseBody
 	public Result<?> createGroup(HttpServletRequest request,HttpServletResponse response,@RequestBody Map<String,String> map) throws UnsupportedEncodingException, IOException{
 		try {
-			userGroupService.create(map);
-			return Result.success("ok");
+			UserGroup groups =userGroupService.create(map);
+			return Result.success(groups);
 		} catch (Exception e) {
 			log.error("",e);
 			return Result.error(CodeMsg.EXPECTION_ERROR);

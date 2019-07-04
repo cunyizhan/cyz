@@ -485,6 +485,44 @@ public class UserCenterController {
 			return Result.error(CodeMsg.EXPECTION_ERROR);
 		}
 	}
+	
+	/**
+	 * 修改好友备注
+	 * @param map
+	 * @return
+	 */
+	@PostMapping("/user/editMyFriendRemark")
+	public Result<?> editMyFriendRemark(@RequestBody Map<String,String> map) {
+		try {
+			userService.updFriendRemark(map);
+			String myUserId=map.get("myUserId");
+			// 1. 数据库查询好友列表
+			List<MyFriendsVO> myFirends = userService.queryMyFriends(myUserId);
+			if(myFirends==null || myFirends.size()==0){
+				return  Result.error(CodeMsg.SEACH_RESULT_ERROR.fillMsg("暂无记录"));
+			}
+			return Result.success(myFirends);
+		} catch (Exception e) {
+			log.error("",e);
+			return Result.error(CodeMsg.EXPECTION_ERROR);
+		}
+	}
+	
+	/**
+	 * 修改好友备注
+	 * @param map
+	 * @return
+	 */
+	@PostMapping("/user/queryPhoneFriends")
+	public Result<?> queryPhoneFriends(@RequestBody Map<String,String> map) {
+		try {
+			List<Map<String, String>> list=userService.queryPhoneFriends(map);
+			return Result.success(list);
+		} catch (Exception e) {
+			log.error("",e);
+			return Result.error(CodeMsg.EXPECTION_ERROR);
+		}
+	}
 	/**
 	 * 
 	 * @Description: 用户手机端获取未签收的消息列表
