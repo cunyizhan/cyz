@@ -3,9 +3,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.itmuch.cloud</groupId>
-  <artifactId>rh-app-server</artifactId>
+  <artifactId>rh-app</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
   <!-- 引入spring boot的依赖 -->
   <parent>
@@ -234,4 +234,10 @@
       </plugin>
     </plugins>
   </build>
+  <modules>
+  	<module>rh-app-core</module>
+  	<module>rh-app-web</module>
+  	<module>rh-app-model</module>
+  	<module>rh-app-common</module>
+  </modules>
 </project>
