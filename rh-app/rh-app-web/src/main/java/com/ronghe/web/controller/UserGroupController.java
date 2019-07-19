@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -172,37 +173,22 @@ public class UserGroupController {
 	/**
 	 * @Description: 上传用户头像
 	 */
-	@PostMapping("/userGroup/uploadFaceBase64")
-	public Result<?> uploadFaceBase64(@RequestBody Map<String,String> map) throws Exception {
-		// 获取前端传过来的base64字符串, 然后转换为文件对象再上传
-		String base64Data = map.get("faceData");
-		String userFacePath = baseUrl + map.get("groupId") + "userface64.png";
-		FileUtils.base64ToFile(userFacePath, base64Data);
-		// 上传文件到fastdfs
-		MultipartFile faceFile = FileUtils.fileToMultipart(userFacePath);
-		
+	@PostMapping("/userGroup/uploadFaceImg")
+	public Result<?> uploadFaceBase64(@RequestParam("faceFile") MultipartFile faceFile,@RequestParam("groupId") String groupId) throws Exception {
 		try {
+			UserGroup ug=userGroupService.getGroupByid(groupId);
+			if(ug.getGroupFaceimageBig()!=null&&!"".equals(ug.getGroupFaceimageBig())){
+				fastDFSClient.deleteFile(ug.getGroupFaceimageBig());
+			}
 			String url = fastDFSClient.uploadQRCode(faceFile);
-			/*// 获取缩略图的url
-			String thump = "_80x80.";
-			String arr[] = url.split("\\.");
-			String thumpImgUrl = arr[0] + thump + arr[1];*/
-			// 更改组群头像
-			UserGroup ug=new UserGroup(); 
-			ug.setId(map.get("groupId"));
+			ug.setId(groupId);
 			ug.setGroupFaceimageBig("/group1/"+url);
 			UserGroup result = userGroupService.updateUserGroup(ug);
 			return Result.success(result);
 		} catch (IOException e) {
 			log.error("",e);
 			return Result.error(CodeMsg.UPLOAD_FILE_FAIL.fillArgsToken(e.getMessage()));
-		}finally{
-			//上传完一定要将图片删除
-			File file = new File(userFacePath);
-			if (file.exists()  && file.isFile()) {
-				file.delete();
-			}
-		}	
+		}
 	}
 	
 	/**

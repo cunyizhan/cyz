@@ -123,7 +123,7 @@ public class FileUtils {
 			FileInputStream inputStream = new FileInputStream(file);
 			MultipartFile multipartFile = new MockMultipartFile(file.getName(), "png", "image/png", inputStream);
 			return multipartFile;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("",e);
 			return null;
 		}

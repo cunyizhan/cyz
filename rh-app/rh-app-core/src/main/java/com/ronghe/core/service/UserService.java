@@ -1,7 +1,6 @@
 package com.ronghe.core.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,10 +10,13 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 import com.ronghe.common.idwork.Sid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+
 
 //import com.mongodb.WriteResult;
 import com.ronghe.common.fastdfs.FastDFSClient;
@@ -125,26 +127,47 @@ public class UserService {
 		return null;
 	}
 
-	public Users saveUser(Users user) {
+	public Users saveSimpleUser(Users user) {
 		String userId = sid.nextShort();
+		String tempName="用户("+userId.substring(userId.length()-5)+")";
+		String qrCodeUrl =uploadImages(userId, user.getPhone());
+		user.setQrcode("/group1/"+qrCodeUrl);
+		user.setId(userId);
+		user.setUsername(tempName);
+		user.setNickname(tempName);
+		userMapper.serverInsertUser(user);
+		return user;
+	}
+	
+	private String uploadImages(String userId,String phone){
 		// 为每个用户生成一个唯一的二维码
 		String qrCodePath = baseUrl + userId + "qrcode.png";
 		//rh_qrcode:[phone]
-		qrCodeUtils.createQRCode(qrCodePath, "rh_qrcode:"+ user.getPhone());
+		qrCodeUtils.createQRCode(qrCodePath, "rh_qrcode:"+ phone);
 		MultipartFile qrCodeFile = FileUtils.fileToMultipart(qrCodePath);
 		
 		String qrCodeUrl = "";
 		try {
 			qrCodeUrl = fastDFSClient.uploadQRCode(qrCodeFile);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			log.error("",e);
 		}finally{
-			//上传完一定要将图片删除
-			File file = new File(qrCodePath);
-			if (file.exists()  && file.isFile()) {
-				file.delete();
+			try {
+				//上传完一定要将图片删除
+				File file = new File(qrCodePath);
+				if (file.exists()  && file.isFile()) {
+					file.delete();
+				}
+			} catch (Exception e2) {
+				log.error("",e2);
 			}
 		}
+		return qrCodeUrl;
+	}
+	
+	public Users saveUser(Users user) {
+		String userId = sid.nextShort();
+		String qrCodeUrl =uploadImages(userId, user.getPhone());
 		user.setQrcode("/group1/"+qrCodeUrl);
 		user.setId(userId);
 		userMapper.serverInsertUser(user);
@@ -181,6 +204,54 @@ public class UserService {
 	public Users updateUserInfo(Users user) {
 		userMapper.serverUpdateUser(user);
 		return queryUserById(user.getId());
+	}
+	
+	public Users updateUserInfo(Map<String,String> map) {
+		Users user=queryUserById(map.get("userId"));
+		if(user==null){
+			return null;
+		}
+		isChangeAddress(map, user);
+		user.setUsername(map.get("username"));
+		user.setNickname(map.get("nickname"));
+		user.setCitycode(map.get("citycode"));
+		user.setAddress(map.get("address"));
+		user.setAddresscode(map.get("addresscode"));
+		user.setEmail(map.get("email"));
+		user.setGender(map.get("gender"));
+		userMapper.serverUpdateUser(user);
+		return user;
+	}
+	
+	private void isChangeAddress(Map<String,String> map,Users user){
+		if(map.get("address")==null||"".equals(map.get("address").trim())){
+			return;
+		}
+		String address=map.get("address").trim();
+		if(address.equals(user.getAddress())){
+			return;
+		}
+		if(user.getAddress()!=null){
+			exitGroupUser(address, user.getId());
+		}
+		joinGroupUser(address, user);
+	}
+	
+	private void joinGroupUser(String address,Users user){
+		//保存用户和群关系
+		String groupUserId = sid.nextShort();
+		GroupUsers groupUsers = new GroupUsers();
+		groupUsers.setId(groupUserId);
+		groupUsers.setUserId(user.getId());
+		groupUsers.setGroupId(address.hashCode()+"");
+		groupsMapper.serverInsertUserRelationGroup(groupUsers);
+	}
+	
+	private void exitGroupUser(String address,String userId){
+		Map<String,String> map=new HashMap<String,String>();
+		map.put("groupId", address.hashCode()+"");
+		map.put("userId", userId);
+		groupsMapper.serverDeleteUserRelationGroup(map);
 	}
 	
 	public Users queryUserById(String userId) {

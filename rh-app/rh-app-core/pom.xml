@@ -55,6 +55,11 @@
 	 	<artifactId>rh-app-common</artifactId>
 	 	<version>0.0.1-SNAPSHOT</version>
 	 </dependency>
+	 <dependency>
+	 	<groupId>org.scala-lang</groupId>
+	 	<artifactId>scala-library</artifactId>
+	 	<version>2.11.0</version>
+	 </dependency>
   </dependencies>
   <build>
   	  <plugins>

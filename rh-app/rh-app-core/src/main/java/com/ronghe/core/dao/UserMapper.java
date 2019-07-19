@@ -26,11 +26,11 @@ public interface UserMapper {
 	@Insert("INSERT INTO `ronghe`.`rh_users` "
 			+ "(`id`,`username`,`nickname`, `gender`, `phone`, `password`, "
 			+ "`email`, `citycode`, `faceImage`, `faceImageBig`, `qrcode`, `cid`, "
-			+ "`regist_date`, `is_delete`,`address`,`addresscode`) "
+			+ "`regist_date`, `is_delete`,`address`,`addresscode`,last_date ) "
 			+ "VALUES "
 			+ "(#{id},#{username},#{nickname},#{gender},#{phone},#{password},"
 			+ " #{email},#{citycode},#{faceImage},#{faceImageBig},#{qrcode},#{cid},"
-			+ " now(), '0', #{address}, #{addresscode});")
+			+ " now(), '0', #{address}, #{addresscode},now());")
 	public void serverInsertUser(Users users);
 	
 	

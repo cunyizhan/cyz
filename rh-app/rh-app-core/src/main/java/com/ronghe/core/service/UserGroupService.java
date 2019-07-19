@@ -214,6 +214,10 @@ public class UserGroupService {
 		return userGroupsMapper.serverListByUserId(userId);
 	}
 	
+	public UserGroup getGroupByid(String groupId) {
+		return userGroupsMapper.serverQueryMyGroupsById(groupId);
+	}
+	
 	/**
 	 * 搜索组群
 	 * @param searchInfo

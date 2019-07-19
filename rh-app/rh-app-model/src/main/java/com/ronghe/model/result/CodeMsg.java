@@ -20,6 +20,7 @@ public class CodeMsg {
 	
 	
 	public static CodeMsg SEACH_NUM_ERROR = new CodeMsg(1007, "参数有误");
+	public static CodeMsg SEACH_PARAM_ERROR = new CodeMsg(1013, "参数有误","%s");
 	public static CodeMsg SEACH_RESULT_ERROR = new CodeMsg(1008, "%s");
 	public static CodeMsg SEACH_PARAMS_ERROR = new CodeMsg(1009, "参数有误,请上送手机号码，和手机唯一标识");
 	

@@ -1,7 +1,5 @@
 package com.ronghe.web.controller;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ronghe.common.fastdfs.FastDFSClient;
-import com.ronghe.common.fastdfs.FileUtils;
 import com.ronghe.model.chat.Users;
 import com.ronghe.model.group.GroupRequest;
 import com.ronghe.model.group.Groups;
@@ -150,37 +147,22 @@ public class GroupController {
 	/**
 	 * @Description: 上传用户头像
 	 */
-	@PostMapping("/group/uploadFaceBase64")
-	public Result<?> uploadFaceBase64(@RequestBody Map<String,String> map) throws Exception {
-		// 获取前端传过来的base64字符串, 然后转换为文件对象再上传
-		String base64Data = map.get("faceData");
-		String userFacePath = baseUrl + map.get("groupId") + "userface64.png";
-		FileUtils.base64ToFile(userFacePath, base64Data);
-		// 上传文件到fastdfs
-		MultipartFile faceFile = FileUtils.fileToMultipart(userFacePath);
-		
+	@PostMapping("/group/uploadFaceImg")
+	public Result<?> uploadFaceBase64(@RequestParam("faceFile") MultipartFile faceFile,@RequestParam("groupId") String groupId) throws Exception {
 		try {
+			Groups g=groupService.getGroupsById(groupId);
+			if(g.getGroupFaceimageBig()!=null&&!"".equals(g.getGroupFaceimageBig())){
+				fastDFSClient.deleteFile(g.getGroupFaceimageBig());
+			}
 			String url = fastDFSClient.uploadQRCode(faceFile);
-			/*// 获取缩略图的url
-			String thump = "_80x80.";
-			String arr[] = url.split("\\.");
-			String thumpImgUrl = arr[0] + thump + arr[1];*/
 			// 更改组群头像
-			Groups g=new Groups();
-			g.setId(map.get("groupId"));
 			g.setGroupFaceimageBig("/group1/"+url);
 			Groups result = groupService.updateGroupInfo(g);
 			return Result.success(result);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("",e);
 			return Result.error(CodeMsg.UPLOAD_FILE_FAIL.fillArgsToken(e.getMessage()));
-		}finally{
-			//上传完一定要将图片删除
-			File file = new File(userFacePath);
-			if (file.exists()  && file.isFile()) {
-				file.delete();
-			}
-		}	
+		}
 	}
 	/**
 	 * 上传图片

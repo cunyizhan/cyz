@@ -1,7 +1,9 @@
 package com.ronghe.core.dao;
 
 import java.util.List;
+import java.util.Map;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -21,6 +23,9 @@ public interface GroupsMapper {
 	@Insert("INSERT INTO `rh_group_users` (`id`, `group_id`, `user_id`, `create_time`, `is_delete`)"
 			+ " VALUES (#{id},#{groupId},#{userId},now(), '0')")
 	public boolean serverInsertUserRelationGroup(GroupUsers groupUsers);
+	
+	@Delete("DELETE from rh_group_users WHERE group_id=#{groupId} and user_id=#{userId}")
+	public boolean serverDeleteUserRelationGroup(Map<String,String> map);
 	
 	
 	@Select("SELECT * from rh_group_users WHERE group_id=#{groupId} and is_delete='0'")

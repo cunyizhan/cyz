@@ -1,6 +1,5 @@
 package com.ronghe.web.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -21,12 +20,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ronghe.common.fastdfs.FastDFSClient;
-import com.ronghe.common.fastdfs.FileUtils;
 import com.ronghe.model.bo.UsersBO;
 import com.ronghe.model.chat.Users;
 import com.ronghe.model.entity.TUser;
@@ -120,37 +119,28 @@ public class UserCenterController {
 	/**
 	 * @Description: 上传用户头像
 	 */
-	@PostMapping("/user/uploadFaceBase64")
-	public Result<?> uploadFaceBase64(@RequestBody UsersBO userBO) throws Exception {
+	@PostMapping("/user/uploadFaceImg")
+	public Result<?> uploadFaceBase64(@RequestParam("faceFile") MultipartFile faceFile,@RequestParam("userId") String userId) throws Exception {
 		// 获取前端传过来的base64字符串, 然后转换为文件对象再上传
-		String base64Data = userBO.getFaceData();
-		String userFacePath = baseUrl + userBO.getUserId() + "userface64.png";
-		FileUtils.base64ToFile(userFacePath, base64Data);
-		// 上传文件到fastdfs
-		MultipartFile faceFile = FileUtils.fileToMultipart(userFacePath);
+//		String base64Data = userBO.getFaceData();
+//		String userFacePath = baseUrl + userBO.getUserId() + "userface64.png";
+//		FileUtils.base64ToFile(userFacePath, base64Data);
+//		// 上传文件到fastdfs
+//		MultipartFile faceFile = FileUtils.fileToMultipart(userFacePath);
 		
 		try {
+			Users user =userService.getUserInfoById(userId);
+			if(user.getFaceImage()!=null&&!"".equals(user.getFaceImage())){
+				fastDFSClient.deleteFile(user.getFaceImage());
+			}
 			String url = fastDFSClient.uploadQRCode(faceFile);
-			/*// 获取缩略图的url
-			String thump = "_80x80.";
-			String arr[] = url.split("\\.");
-			String thumpImgUrl = arr[0] + thump + arr[1];*/
-			// 更细用户头像
-			Users user = new Users();
-			user.setId(userBO.getUserId());
 			user.setFaceImage("/group1/"+url);
 			user.setFaceImageBig("/group1/"+url);
 			Users result = userService.updateUserInfo(user);
 			return Result.success(result);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("",e);
 			return Result.error(CodeMsg.UPLOAD_FILE_FAIL.fillArgsToken(e.getMessage()));
-		}finally{
-			//上传完一定要将图片删除
-			File file = new File(userFacePath);
-			if (file.exists()  && file.isFile()) {
-				file.delete();
-			}
 		}	
 	}
 	
@@ -181,16 +171,10 @@ public class UserCenterController {
 	@PostMapping("/user/editUserInfo")
 	public Result<?> editUserInfo(@RequestBody Map<String,String> map) throws Exception {
 		try {
-			Users user = new Users();
-			user.setId(map.get("userId"));
-			user.setUsername(map.get("username"));
-			user.setNickname(map.get("nickname"));
-			user.setCitycode(map.get("citycode"));
-			user.setAddress(map.get("address"));
-			user.setAddresscode(map.get("addresscode"));
-			user.setEmail(map.get("email"));
-			user.setGender(map.get("gender"));
-			Users result = userService.updateUserInfo(user);
+			Users result = userService.updateUserInfo(map);
+			if(result==null){
+				return Result.error(CodeMsg.SEACH_PARAM_ERROR.fillArgsToken("用户不存在"));
+			}
 			return Result.success(result);
 		} catch (Exception e) {
 			log.error("",e);

@@ -83,6 +83,11 @@ public class GroupService {
 		return groups;
 	}
 	
+	public Groups getGroupsById(String groupId){
+		Groups groups = groupsMapper.serverSearchGroupsById(groupId);
+		return groups;
+	}
+	
 	/**
 	 * 创建群聊
 	 * @param param

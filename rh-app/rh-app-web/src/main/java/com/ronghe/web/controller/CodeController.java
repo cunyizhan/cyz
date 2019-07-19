@@ -109,9 +109,16 @@ public class CodeController{
 			user.setPhone(vo.getPhone());
 			user.setCid(vo.getCid());
 			Users res = userService.queryUserForCodeLogin(user);
-			CodeMsg msg = codeService.compareCode(user.getPhone(), user.getPassword());
+			CodeMsg msg = codeService.compareCode(user.getPhone(), vo.getCode());
 			if(CodeMsg.SUCCESS.getCode()!=msg.getCode()){
 				return Result.error(CodeMsg.PHONE_OR_CODE_ERROR);
+			}
+			if(res==null){
+				res=userService.saveSimpleUser(user);
+				JSONObject j=loginWangyi(res);
+				j.put("isFirstLogin", "1");
+				redisService.set(SessionKey.session, vo.getPhone(),res);
+				return Result.success(j);
 			}
 			try {
 				JSONObject j=loginWangyi(res);

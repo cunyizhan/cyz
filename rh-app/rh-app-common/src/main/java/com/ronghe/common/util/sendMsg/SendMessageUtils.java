@@ -56,7 +56,7 @@ public class SendMessageUtils {
 		 //必填:短信模板-可在短信控制台中找到
 		 request.setTemplateCode("SMS_76560133");
 		 //可选:模板中的变量替换JSON串,如模板内容为"亲爱的${name},您的验证码为${code}"时,此处的值为
-		 request.setTemplateParam("{\"code\":\""+code+"\",\"name\":\"中烟追溯用户\"}");
+		 request.setTemplateParam("{\"code\":\""+code+"\",\"name\":\"村e栈用户\"}");
 		 //可选:outId为提供给业务方扩展字段,最终在短信回执消息中将此值带回给调用者
 		 request.setOutId("yourOutId");
 		//请求失败这里会抛ClientException异常
